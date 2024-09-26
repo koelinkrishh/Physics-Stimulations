@@ -1,0 +1,83 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Constants
+e = 1.6e-19
+k = 1.38e-23 / e  # Boltzmann constant [eV/K]
+mu = 9.284e-24 / e  # Electron magnetic moment [eV/T]
+B = 1  # Magnetic field [Tesla]
+
+# Temperature range
+T = np.linspace(0, 10, 100)
+Tbar = np.linspace(1, 10, 100)
+
+# Calculate dimensionless parameters
+epsilon = 1e-3  # Small epsilon to avoid division by zero
+x = (mu * B) / (k * (T + epsilon))
+xbar = (mu * B) / (k * Tbar)
+xbar = np.clip(xbar, -500, 500)  # Clip xbar to a reasonable range to avoid extreme values
+
+# Thermodynamic quantities
+E_N = -mu * B * np.tanh(xbar)  # Energy [eV/K]
+Z = 2 * np.cosh(-xbar)  # Partition function [dimensionless]
+S_N = k * np.log(Z) + E_N / Tbar  # Entropy [eV/K]
+M_N = mu * np.tanh(x)  # Magnetization [eV m^3/Tesla]
+n1 = np.exp(x) / (2 * np.cosh(-x))  # Population of state 1
+n2 = np.exp(-x) / (2 * np.cosh(-x))  # Population of state 2
+Cv_N = k * (x ** 2) * np.cosh(x) ** -2  # Specific heat [eV/K]
+
+# Plotting
+plt.figure(figsize=(12, 10))
+
+# Energy plot
+plt.subplot(3, 2, 1)
+plt.plot(Tbar, E_N, linewidth=3, color='darkblue')
+plt.title('Energy [eV/K]')
+plt.ylabel('E')
+plt.xlabel('T')
+plt.grid(True)
+
+# Partition function plot
+plt.subplot(3, 2, 2)
+plt.plot(Tbar, Z, linewidth=3, color='chocolate')
+plt.title('Partition Function')
+plt.ylabel('Z')
+plt.xlabel('T')
+plt.grid(True)
+
+# Entropy plot
+plt.subplot(3, 2, 3)
+plt.plot(Tbar, S_N, linewidth=3, color='darkgreen')
+plt.title('Entropy [eV/K]')
+plt.ylabel('S')
+plt.xlabel('T')
+plt.grid(True)
+
+# Magnetization plot
+plt.subplot(3, 2, 4)
+plt.plot(T, M_N, linewidth=3, color='magenta')
+plt.title('Magnetization [eV m^3/Tesla]')
+plt.ylabel('M')
+plt.xlabel('T')
+plt.grid(True)
+
+# Population plot
+plt.subplot(3, 2, 5)
+plt.plot(T, n1, linewidth=3, color='red', label='n1')
+plt.plot(T, n2, linewidth=3, color='blue', label='n2')
+plt.title('Occupancy')
+plt.ylabel('N1 & N2')
+plt.xlabel('T')
+plt.legend()
+plt.grid(True)
+
+# Specific heat plot
+plt.subplot(3, 2, 6)
+plt.plot(T, Cv_N, linewidth=3, color='firebrick')
+plt.title('Specific Heat [eV/K]')
+plt.ylabel('Cv')
+plt.xlabel('T')
+plt.grid(True)
+
+plt.tight_layout()
+plt.show()

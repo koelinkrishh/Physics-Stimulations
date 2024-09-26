@@ -1,0 +1,102 @@
+#### Solving ordinary differential equations:
+#%%
+import numpy as np
+import inspect
+# %% [markdown]
+#### Euler method:
+# Q) dy/dx = x+y; y(0) = 2 for x->[0,1] with h=0.5
+Func = lambda x,y:x+y
+h=0.5;x0=0;x1=1;y0=2;
+x = np.arange(x0,x1+1e-10,h)
+y = np.zeros(np.size(x))
+
+#%%
+y[0]  = 2
+for i in range(1,np.size(x)):
+    Fxy = Func(x[i-1],y[i-1])
+    y[i] = y[i-1]+h*Fxy
+
+print('Solutions:',y)
+print(f'Solution to given ODE :',y[np.size(y)-1] )
+
+# %% [markdown]
+#### Euler's Modified method:
+# Q) dy/dx = 3e^-x - 0.4y; y(0) = 5 for x->[0,3] with h=1
+
+Func = lambda x,y: x+y
+h=0.5;x0=0;x1=1;y0=1;
+x = np.arange(x0,x1+h+1e-10,h)
+x_size = np.size(x);
+iter = 5; # iterations of modified euler
+y = np.zeros((x_size-1,iter+1),dtype='float')
+
+#%%
+y[0,0] = y0
+# First euler then modified euler on it
+for i in range(x_size-1): # Euler
+    Fxy = Func(x[i],y[i,0])
+    y[i,1] = y[i,0]+h*Fxy
+    print("Using Euler method")
+    print(f'y[{i},{1}] = {round(y[i,0],5)} + {h}*( {round(Fxy),5} ) = {round(y[i,1],5)}')
+    for j in range(1,iter): # Modified Euler
+        Fxy0 = Func(x[i],y[i,0])
+        Fxy1 = Func(x[i+1],y[i,j])
+
+        #print('x[',i+1,'] : ',x[i+1])
+        y[i,j+1] = y[i,0] + (h/2)*(Fxy0+Fxy1)
+        print("Using Euler modified method")
+        print(f'y[{i},{j+1}] = {round(y[i,0],5)} + ({h}/2)*( {round(Fxy0,5)}+{round(Fxy1,5)} ) = { round(y[i,j+1],5) }')
+
+    if i!=(x_size-2):
+        y[i+1,0] = y[i,iter]
+
+print('\nTherefore, final solution y(x = {}) is {}'.format(x1,y[-1][-1]) )
+
+#%% [markdown]
+#### <b>Ranga-Kutta</b> :
+# General Method - 
+#%%
+print('\nRunga Kutta:')
+def Runga(Fxy,a1,a2,p,q):
+    # Data strructure
+    x = np.linspace(x0,x1,n+1,endpoint=True)
+    y = np.zeros(n+1,dtype='float')
+
+    y[0] = y0;
+    for i in range(n):
+        K1 = Fxy(x[i],y[i])
+        K2 = Fxy(x[i] + p*h ,y[i] + K1*q*h)
+        y[i+1] = y[i] + h*( a1*K1 + a2*K2 )
+    return x,y
+
+# %% [markdown]
+##### A} Heun's method:     a1=a2=1/2;p=q=1;
+# q) dy/dx = 2y/x where y(1)=2. Estimate y(2) with h=0.25
+# %%
+"""  print(inspect.getsource(Function)) # Print function directly  """
+Function = lambda x,y: 2*y/x
+x0=1;x1=2; y0=2; h=0.25;
+n=int( (x1-x0)/h )
+
+#   a1=a2=1/2;p=q=1;
+X,Y = Runga(Function,1/2,1/2,1,1)
+
+sol = round( Y[np.size(Y)-1],6 )
+
+print(f'\nSolution to Given (( {inspect.getsource(Function)} )) by Heun\'s method: {sol}')
+
+# %% [markdown]
+##### B} Mid point's method:     a1=0;a2=1;p=q=1/2;
+# q) dy/dx = 2y/x where y(1)=2. Estimate y(2) with h=0.25
+# %%
+"""  print(inspect.getsource(Function)) # Print function directly  """
+Funct = lambda x,y: y**2 + 5*x
+x0=0;x1=1.5; y0=2; h=0.5;
+n=int( (x1-x0)/h )
+
+#   a1=0;a2=1;p=q=1/2;
+X_alt,Y_alt = Runga(Funct,0,1,1/2,1/2)
+
+solution = round( Y_alt[np.size(Y_alt)-1],6 )
+
+print(f'\nSol. to (( {inspect.getsource(Funct)} )) by Mid point method : {solution}')

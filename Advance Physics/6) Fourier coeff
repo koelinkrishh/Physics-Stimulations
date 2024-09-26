@@ -1,0 +1,64 @@
+import numpy as np
+from scipy.integrate import quad
+
+def fourier_coefficients(f, T, N):
+  """
+  Calculate the first N Fourier coefficients for a given function f with period T.
+  
+  Parameters:
+  f (function): The periodic function.
+  T (float): The period of the function.
+  N (int): The number of Fourier coefficients to calculate.
+  
+  Returns:  a0, an, bn: Fourier coefficients a0, an, and bn.
+  """
+  L = T/2
+
+  # Calculate a0
+  a0 = round((1/T)*quad(f,-L,L)[0] , 6)
+
+  an = [];bn = []
+  for n in range(1, N + 1):
+    an_coeff = (2 / T) * quad(lambda x: f(x) * np.cos(2 * np.pi * n * x / T), -L, L)[0]
+    bn_coeff = (2 / T) * quad(lambda x: f(x) * np.sin(2 * np.pi * n * x / T), -L, L)[0]
+    an.append(round(an_coeff,6))
+    bn.append(round(bn_coeff,6))
+  return a0, an, bn
+
+# Define the square wave function
+def square_wave(x):
+    x = np.mod(x, 2 * np.pi)  # Ensure x is within the period [0, 2*pi)
+    if 0 <= x < np.pi:
+        return 1
+    elif np.pi <= x < 2 * np.pi:
+        return -1
+
+T = 2 * np.pi  # Period
+N = 5  # Number of coefficients
+# Calculate Fourier coefficients for the square wave
+a0, an, bn = fourier_coefficients(square_wave, T, N)
+
+print("For square wave:")
+# Display the coefficients
+print(f"a0 = {a0}")
+for i in range(N):
+  print(f"a{i+1} = {an[i]}")
+  print(f"b{i+1} = {bn[i]}")
+
+# Define the triangular wave function
+def triangular_wave(x):
+  x = np.mod(x, 2 * np.pi)  # Ensure x is within the period [0, 2*pi)
+  if 0 <= x < np.pi:
+    return x
+  elif np.pi <= x < 2 * np.pi:
+    return 2 * np.pi - x
+
+# Calculate Fourier coefficients for the triangular wave
+a0, an, bn = fourier_coefficients(triangular_wave, T, N)
+
+print("For triangular wave:")
+# Display the coefficients
+print(f"a0 = {a0}")
+for i in range(N):
+  print(f"a{i+1} = {an[i]}")
+  print(f"b{i+1} = {bn[i]}")
